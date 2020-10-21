@@ -12,5 +12,10 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('layouts.app');
 });
+
+
+# регистрация
+Route::get('/weather', 'Widgets\WeatherController@index')->name('weather');
+
