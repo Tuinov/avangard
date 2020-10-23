@@ -16,6 +16,8 @@ Route::get('/', function () {
 });
 
 
-# регистрация
+# Погода
 Route::get('/weather', 'Widgets\WeatherController@index')->name('weather');
 
+# Заказы
+Route::get('/orders', 'Shop\OrderController@index')->name('orders');
