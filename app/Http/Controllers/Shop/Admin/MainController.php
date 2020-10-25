@@ -1,19 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Shop;
+namespace App\Http\Controllers\Shop\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shop\ProductController;
 use App\Order;
+use App\OrderProduct;
+use App\Partner;
 use App\Product;
 use Illuminate\Http\Request;
 use DB;
 
-class OrderController extends Controller
+class MainController extends Controller
 {
 
     public function index()
     {
+       // $orders = (new Order)->all();
+
+        //dd($orders);
         $orders = $this->getOrders();
         return view('orders.index', compact('orders'));
 
@@ -28,11 +33,11 @@ class OrderController extends Controller
 
     public function update(Request $request, $id)
     {
-        $item = new Order;
-         $order = $item->find($id);
-        dd($request->all(), $order);
 
-        if(empty($item)) {
+        $order = (new Order)->find($id);
+        //dd($request->all(), $order);
+
+        if (empty($order)) {
             return back()
                 ->withErrors(['msg' => "Запись id=[{$id}] не найдена"])
                 ->withInput();
@@ -40,16 +45,31 @@ class OrderController extends Controller
 
         $data = $request->all();
 
+        $order->client_email = $data['email'];
+        $order->status = $data['status'];
+        $order->save();
 
-//        if(empty($item->published_at) && $data['is_published']) {
-//            $data['is_published'] = Carbon::now();
-//        }
+        $dataDelete = DB::table('order_products')->where('order_id', '=', $order->id)->delete();
+        $productsId = $data['products_id'];
 
-        $result = $item->update($data);
+        foreach ($productsId as $productId) {
+            $product = Product::find($productId);
+            $orderProduct = new OrderProduct();
+            $orderProduct->order_id = $order->id;
+            $orderProduct->product_id = $productId;
+            $orderProduct->quantity = 1;
+            $orderProduct->price = $product->price;
+            $orderProduct->save();
+        }
+
+
+        $partner = (new Partner())->find($order->partner_id);
+        $partner->name = $data['name_partners'];
+        $result = $partner->save();
 
         if ($result) {
             return redirect()
-                ->route('blog.admin.post.edit', $item->id)
+                ->route('order.edit', $order->id)
                 ->with(['success' => 'успешно сохранено']);
         } else {
             return back()
@@ -95,7 +115,7 @@ class OrderController extends Controller
             ->leftjoin('products', 'order_products.product_id', '=', 'products.id')
             ->selectRaw('orders.id, orders.status, partners.name AS name_partners, SUM(order_products.price)AS sum, order_products.order_id')
             ->groupBy('orders.id')
-            ->limit(10)
+            ->limit(30)
             ->get();
 
         $orders = $data->map(function ($item) {
@@ -104,7 +124,7 @@ class OrderController extends Controller
             $data['status'] = $item->status;
             $data['name_partners'] = $item->name_partners;
             $data['sum'] = $item->sum;
-            $data['products'] = $this->getProducts($item->id);
+            $data['products'] = ProductController::getProductsInOrderProduct($item->order_id);
 
             return $data;
         });

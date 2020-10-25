@@ -2,12 +2,14 @@
 
 @section('content')
     @include('orders.includes.nav_orders')
+    @include('orders.includes.result_messages')
     <div class="container">
 
-{{--        @php dd($order) @endphp--}}
+        {{--        @php dd($order) @endphp--}}
 
-        <form method="POST" action="">
-
+        <form method="POST" action="{{ route('order.update', $order['id']) }}">
+{{--            {{ method_field('PATCH') }}--}}
+            {{ csrf_field() }}
             <div class="row">
                 <div class="col-md-8">
                     <div class="row justify-content-center">
@@ -23,6 +25,14 @@
 
                                     <div class="tab-content">
                                         <div class="tab-pane active" id="maindata" role="tabpanel">
+                                            <div class="form-group">
+                                                <label for="id">Id:</label>
+                                                <input name="id" value="{{ $order['id'] }}"
+                                                       id="id"
+                                                       type="text"
+                                                       class="form-control"
+                                                       required>
+                                            </div>
                                             <div class="form-group">
                                                 <label for="email">Емаил клиента:</label>
                                                 <input name="email" value="{{ $order['client_email'] }}"
@@ -57,14 +67,14 @@
                                             <div class="form-check">
                                                 <h5>Продукты:</h5>
                                                 @foreach($order['products'] as $product)
-                                                    <input name="is_published" type="checkbox" checked="checked" class="form-check-input"
+                                                    <input name="products_id[]" type="checkbox" checked="checked"
+                                                           class="form-check-input"
                                                            value="{{ $product->id }}">
-                                                    <label class="form-check-label" for="is_published">{{ $product->name }}</label>
+                                                    <label class="form-check-label"
+                                                           for="products_id[]">{{ $product->name }}</label>
                                                     <br>
 
                                                 @endforeach
-
-
 
                                             </div>
                                         </div>

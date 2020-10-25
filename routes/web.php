@@ -19,11 +19,11 @@ Route::get('/', function () {
 # Погода
 Route::get('/weather', 'Widgets\WeatherController@index')->name('weather');
 
-# Заказы
-Route::get('/orders', 'Shop\OrderController@index')->name('orders');
-# Заказы
-Route::get('/order/edit{id}', 'Shop\OrderController@edit')->name('order.edit');
-
-//Route::group(['namespace' => 'Shop'],function() {
-//    Route::resource('orders', 'OrderController')->names('shop.orders');
-//});
+Route::group(['namespace' => 'Shop\Admin'],function() {
+    # Заказы
+    Route::get('/orders', 'MainController@index')->name('orders');
+    # Заказ редактировать
+    Route::get('/order/edit/{id}', 'MainController@edit')->name('order.edit');
+    # Заказ изменить
+    Route::post('/order/update/{id}', 'MainController@update')->name('order.update');
+});

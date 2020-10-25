@@ -26,8 +26,8 @@
                             <tbody>
                             @foreach($orders as $order)
 
-                                <tr  style="background-color: #ccc;">
-                                    <td><a href="{{ route('order.edit', $order['id']) }}">{{ $order['id'] }}</a></td>
+                                <tr>
+                                    <td><a href="{{ route('order.edit', $order['id']) }}">{{ $order['id'] }}. редакт.</a></td>
                                     <td>{{ $order['name_partners'] }}</td>
                                     <td>{{ $order['sum'] }}</td>
                                     <td>
