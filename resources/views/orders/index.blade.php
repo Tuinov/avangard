@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+    @include('orders.includes.nav_orders')
+
     <div class="container">
         <div class="row">
             <div class="col-md-12">
@@ -11,6 +13,7 @@
                     <div class="card-body">
                         <table class="table table-hover">
                             <thead>
+                            <h2>Все заказы</h2>
                             <tr>
 
                                 <th>ид_заказа</th>
@@ -24,10 +27,14 @@
                             @foreach($orders as $order)
 
                                 <tr  style="background-color: #ccc;">
-                                    <td><a href="">{{ $order['id'] }}</a></td>
+                                    <td><a href="{{ route('order.edit', $order['id']) }}">{{ $order['id'] }}</a></td>
                                     <td>{{ $order['name_partners'] }}</td>
                                     <td>{{ $order['sum'] }}</td>
-                                    <td>{{ $order['products'] }}</td>
+                                    <td>
+                                        @foreach($order['products'] as $product)
+                                            {{ $product->name }}
+                                        @endforeach
+                                    </td>
                                     <td>{{ $order['status'] }}</td>
 
                                 </tr>
