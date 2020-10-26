@@ -19,6 +19,7 @@ Route::get('/', function () {
 # Погода
 Route::get('/weather', 'Widgets\WeatherController@index')->name('weather');
 
+
 Route::group(['namespace' => 'Shop\Admin'],function() {
     # Заказы
     Route::get('/orders', 'MainController@index')->name('orders');
@@ -26,4 +27,10 @@ Route::group(['namespace' => 'Shop\Admin'],function() {
     Route::get('/order/edit/{id}', 'MainController@edit')->name('order.edit');
     # Заказ изменить
     Route::post('/order/update/{id}', 'MainController@update')->name('order.update');
+
+    # Заказы сортировка
+    Route::get('/orders/late', 'MainController@getOrdersLate')->name('orders.late');
+    Route::get('/orders/now', 'MainController@getOrdersNow')->name('orders.now');
+    Route::get('/orders/new', 'MainController@getOrdersNew')->name('orders.new');
+    Route::get('/orders/completed', 'MainController@getOrdersСompleted')->name('orders.completed');
 });

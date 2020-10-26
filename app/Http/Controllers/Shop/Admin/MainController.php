@@ -4,21 +4,29 @@ namespace App\Http\Controllers\Shop\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Shop\ProductController;
+use App\Http\Requests\OrderUpdateRequest;
 use App\Order;
 use App\OrderProduct;
 use App\Partner;
 use App\Product;
+use App\Repositories\OrderRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use DB;
+use Mail;
 
 class MainController extends Controller
 {
 
+    protected $repository;
+
+    public function __construct()
+    {
+        $this->repository = OrderRepository::getInstance();
+    }
+
     public function index()
     {
-       // $orders = (new Order)->all();
-
-        //dd($orders);
         $orders = $this->getOrders();
         return view('orders.index', compact('orders'));
 
@@ -31,11 +39,10 @@ class MainController extends Controller
 
     }
 
-    public function update(Request $request, $id)
+    public function update(OrderUpdateRequest $request, $id)
     {
 
         $order = (new Order)->find($id);
-        //dd($request->all(), $order);
 
         if (empty($order)) {
             return back()
@@ -67,6 +74,15 @@ class MainController extends Controller
         $partner->name = $data['name_partners'];
         $result = $partner->save();
 
+        if ($order->status == 20) {
+            $userMail = $data['email'];
+
+            Mail::send('emails.orderEnd', $order, function ($message) use ($userMail) {
+                $message->to($userMail)->subject('заказ завершён ');
+//                $message->from($user_email, '');
+            });
+        }
+
         if ($result) {
             return redirect()
                 ->route('order.edit', $order->id)
@@ -77,6 +93,38 @@ class MainController extends Controller
                 ->withInput();
         }
 
+    }
+
+    public function getOrdersLate()
+    {
+        $between = [0, Carbon::now()];
+        $orders = $this->repository->getDeliverySort($between, 'desc', 10);
+        return view('orders.index', compact('orders'));
+    }
+
+    public function getOrdersNow()
+    {
+        $between = [Carbon::now(), Carbon::now()->addHours(24)];
+
+        $orders = $this->repository->getDeliverySort($between, 'asc', 10);
+        return view('orders.index', compact('orders'));
+    }
+
+    public function getOrdersNew()
+    {
+        $between = [Carbon::now(), Carbon::now()->addYears(0)];
+
+        $orders = $this->repository->getDeliverySort($between, 'asc', 10);
+        return view('orders.index', compact('orders'));
+    }
+
+    public function getOrdersСompleted()
+    {
+        $date = Carbon::today();
+        $between = [$date, $date];
+
+        $orders = $this->repository->getDeliverySort($between, 'desc', 20);
+        return view('orders.index', compact('orders'));
     }
 
 

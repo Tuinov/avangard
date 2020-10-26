@@ -13,7 +13,7 @@
                     <div class="card-body">
                         <table class="table table-hover">
                             <thead>
-                            <h2>Все заказы</h2>
+                            <h2>Заказы</h2>
                             <tr>
 
                                 <th>ид_заказа</th>
